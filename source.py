@@ -1,68 +1,117 @@
-from sklearn.datasets import load_digits
-from collections import Counter
-
-import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
-
 from mlxtend.data import loadlocal_mnist
-
-import numpy as np
-
+import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
+import numpy as np
 
 
-def cost_fun(y_true, y_pre):
-    return np.mean((y_true-y_pre)**2)
+from sklearn.linear_model import LogisticRegression
 
 
-class logistic_regration:
-
-    # yhat= wx + b   => w -> slop and b -> shift along y-axis in 2d
-    # cost function (calculate as low as low)=>    (sum_for_all_data_samples((actual-approx)**2))/number_of_samples
-    # gradiant descent to calculate w and b
-
-    def __init__(self, lr=0.0001, n_iters=1000):
+class LR:
+    def __init__(self, lr=0.001, n_iters=1000):
         self.lr = lr
         self.n_iters = n_iters
         self.w = None
         self.b = None
 
-    # def __del__(self):
-    #     print("meeeeeeeeeeee")
-
-    def _sigmoid(self, x):
-        return 1/(1 + np.exp(-x))
-
-    # training set X and training labels y
-    # X=> m x n           y => m-vector
-
     def fit(self, X, y):
-        # init variables
-        n_samples, n_features = X.shape
+        n_sample, n_features = X.shape
+
         self.w = np.zeros(n_features)
         self.b = 0
 
-        # gradient
-        for testtest in range(self.n_iters):
-            print(testtest)  # testing counter
-            # yhat=wx+b
-            y_hat = np.dot(X, self.w)+self.b
-            y_pre = self._sigmoid(y_hat)
+        for i in range(self.n_iters):
+            print(i)
 
-            dw = (1/n_samples)*(np.dot(X.T, (y_pre-y)))
-            db = (1/n_samples)*(np.sum(y_pre-y))
+            linear_model = np.dot(X, self.w)+self.b
+            y_pridicted = self._sigmoid(linear_model)
+
+            dw = (1/n_sample)*(np.dot(X.T, (y_pridicted-y)))
+            db = (1/n_sample)*(np.sum(y_pridicted-y))
 
             self.w -= self.lr*dw
             self.b -= self.lr*db
 
     def predict(self, X):
-        y_hat = np.dot(X, self.w)+self.b
-        y_pre = self._sigmoid(y_hat)
-        y_pre_cls = [1 if i > 0.5 else 0 for i in y_pre]
-        return y_pre_cls
+        linear_model = np.dot(X, self.w)+self.b
+        y_pridicted = self._sigmoid(linear_model)
+
+        y_pridicted_cls = [1 if i > 0.5 else 0 for i in y_pridicted]
+
+        return y_pridicted_cls
+
+    def _sigmoid(self, x):
+        return (1)/(1+np.exp(-x))
 
 
-digits = load_digits()
-print(dir(digits))
-print(digits.data)
+def accuracy(predicted_labels, actual_labels):
+    diff = predicted_labels - actual_labels
+    return 1.0 - (float(np.count_nonzero(diff)) / len(diff))
+
+
+# bc = datasets.load_breast_cancer()
+# X, y = bc.data, bc.target
+
+# X_train, X_test, y_train, y_test = train_test_split(
+#     X, y, test_size=0.2, random_state=1234)
+
+
+# reg = LR(lr=0.0001, n_iters=1000)
+# reg.fit(X_train, y_train)
+# pree = reg.predict(X_test)
+
+# acc = np.sum(y_test == pree)/len(y_test)
+# print('{:20.15f}'.format(acc))
+# print('{:20.15f}'.format(accuracy(pree, y_test)))
+
+
+X_test, y_test = loadlocal_mnist(
+    images_path='./dataset/t10k-images-idx3-ubyte',
+    labels_path='./dataset/t10k-labels-idx1-ubyte')
+X_train, y_train = loadlocal_mnist(
+    images_path='./dataset/train-images-idx3-ubyte',
+    labels_path='./dataset/train-labels-idx1-ubyte')
+
+
+X_train69 = X_train[np.logical_or(y_train == 6, y_train == 9)]
+y_train69 = y_train[np.logical_or(y_train == 6, y_train == 9)]
+
+X_test69 = X_test[np.logical_or(y_test == 6, y_test == 9)]
+y_test69 = y_test[np.logical_or(y_test == 6, y_test == 9)]
+
+y_train69 = [1 if i == 6 else 0 for i in y_train69]
+y_test69 = [1 if i == 6 else 0 for i in y_test69]
+
+X_train69 = X_train69.astype('float32')
+X_test69 = X_test69.astype('float32')
+# Normalizing the RGB codes by dividing it to the max RGB value.
+X_train69 /= 255
+X_test69 /= 255
+print(X_train69.shape)
+print(y_train69.__len__())
+print(X_test69.shape)
+print(y_test69.__len__())
+
+maxt = 30
+print(X_train69[:maxt])
+print(y_train69[:maxt])
+print(X_test69[:maxt])
+print(y_test69[:maxt])
+
+
+reg = LR(lr=0.0001, n_iters=1000)
+reg.fit(X_train69, y_train69)
+pree = reg.predict(X_test69)
+
+acc = np.sum(y_test69 == pree)/len(y_test69)
+print('{:20.15f}'.format(acc))
+print(accuracy(np.array(pree), np.array(y_test69)))
+
+print("++++++++++++++++++++++++++++++++++++++++++++++++")
+logmodel = LogisticRegression()
+logmodel.fit(X_train69, y_train69)
+
+predictions = logmodel.predict(X_test69)
+accuu = np.sum(y_test69 == predictions)/len(y_test69)
+print('{:20.15f}'.format(accuu))
