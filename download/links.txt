@@ -1,0 +1,5 @@
+https://ml-cheatsheet.readthedocs.io/en/latest/logistic_regression.html
+https://towardsdatascience.com/logistic-regression-detailed-overview-46c4da4303bc
+https://github.com/michelucci/Logistic-Regression-Explained/blob/master/MNIST%20with%20Logistic%20Regression%20from%20scratch.ipynb
+
+
