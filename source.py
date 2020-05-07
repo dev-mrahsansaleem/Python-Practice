@@ -1,11 +1,5 @@
 from mlxtend.data import loadlocal_mnist
-import matplotlib.pyplot as plt
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
 import numpy as np
-
-
-from sklearn.linear_model import LogisticRegression
 
 
 class LR:
@@ -37,33 +31,12 @@ class LR:
         linear_model = np.dot(X, self.w)+self.b
         y_pridicted = self._sigmoid(linear_model)
 
-        y_pridicted_cls = [1 if i > 0.5 else 0 for i in y_pridicted]
+        # y_pridicted_cls = [1 if i > 0.5 else 0 for i in y_pridicted]
 
-        return y_pridicted_cls
+        return 1 if y_pridicted > 0.5 else 0
 
     def _sigmoid(self, x):
         return (1)/(1+np.exp(-x))
-
-
-def accuracy(predicted_labels, actual_labels):
-    diff = predicted_labels - actual_labels
-    return 1.0 - (float(np.count_nonzero(diff)) / len(diff))
-
-
-# bc = datasets.load_breast_cancer()
-# X, y = bc.data, bc.target
-
-# X_train, X_test, y_train, y_test = train_test_split(
-#     X, y, test_size=0.2, random_state=1234)
-
-
-# reg = LR(lr=0.0001, n_iters=1000)
-# reg.fit(X_train, y_train)
-# pree = reg.predict(X_test)
-
-# acc = np.sum(y_test == pree)/len(y_test)
-# print('{:20.15f}'.format(acc))
-# print('{:20.15f}'.format(accuracy(pree, y_test)))
 
 
 X_test, y_test = loadlocal_mnist(
@@ -74,44 +47,58 @@ X_train, y_train = loadlocal_mnist(
     labels_path='./dataset/train-labels-idx1-ubyte')
 
 
-X_train69 = X_train[np.logical_or(y_train == 6, y_train == 9)]
-y_train69 = y_train[np.logical_or(y_train == 6, y_train == 9)]
+# X_train69 = X_train[np.logical_or(y_train == 6, y_train == 9)]
+# y_train69 = y_train[np.logical_or(y_train == 6, y_train == 9)]
 
-X_test69 = X_test[np.logical_or(y_test == 6, y_test == 9)]
-y_test69 = y_test[np.logical_or(y_test == 6, y_test == 9)]
+# X_test69 = X_test[np.logical_or(y_test == 6, y_test == 9)]
+# y_test69 = y_test[np.logical_or(y_test == 6, y_test == 9)]
 
-y_train69 = [1 if i == 6 else 0 for i in y_train69]
-y_test69 = [1 if i == 6 else 0 for i in y_test69]
+# y_train69 = [1 if i == 6 else 0 for i in y_train69]
+# y_test69 = [1 if i == 6 else 0 for i in y_test69]
 
-X_train69 = X_train69.astype('float32')
-X_test69 = X_test69.astype('float32')
+X_train = X_train.astype('float32')
+X_test = X_test.astype('float32')
 # Normalizing the RGB codes by dividing it to the max RGB value.
-X_train69 /= 255
-X_test69 /= 255
-print(X_train69.shape)
-print(y_train69.__len__())
-print(X_test69.shape)
-print(y_test69.__len__())
+X_train /= 255
+X_test /= 255
 
-maxt = 30
-print(X_train69[:maxt])
-print(y_train69[:maxt])
-print(X_test69[:maxt])
-print(y_test69[:maxt])
+print("train=>", X_train.shape)
+print("train=>", y_train.__len__())
+print("test=>", X_test.shape)
+print("test=>", y_test.__len__())
 
+X_train = np.array(X_train)
+y_train = np.array(y_train)
+X_test = np.array(X_test)
+y_test = np.array(y_test)
+
+
+# maxt = 30
+# print(X_train[:maxt])
+# print(y_train[:maxt])
+# print(X_test[:maxt])
+# print(y_test[:maxt])
+output = np.zeros((y_test.__len__()+20, 10))  # 10020 x 10
 
 reg = LR(lr=0.0001, n_iters=1000)
-reg.fit(X_train69, y_train69)
-pree = reg.predict(X_test69)
+for x in range(10):
+    y_train_s_num = [1 if i == x else 0 for i in y_train]
+    y_test_s_num = [1 if i == x else 0 for i in y_test]
+    records = 30
+    print("itration no:", x)
+    print("updated:", np.array(y_train_s_num[:records]))
+    print("old____:", y_train[:records])
+    print("updated:", np.array(y_test_s_num[:records]))
+    print("old____:", y_test[:records])
+    reg.fit(X_train, y_train_s_num)
+    i = 0
+    for x_t in X_test:
+        # itrate over each record
+        output[i][x] = reg.predict(x_t)
+        i += 1
+        # print("predicted for train iter:", x, "   ", output[i][x])
+        # print("orignal for train iter:", x, "     ", y_test[i])
 
-acc = np.sum(y_test69 == pree)/len(y_test69)
-print('{:20.15f}'.format(acc))
-print(accuracy(np.array(pree), np.array(y_test69)))
-
-print("++++++++++++++++++++++++++++++++++++++++++++++++")
-logmodel = LogisticRegression()
-logmodel.fit(X_train69, y_train69)
-
-predictions = logmodel.predict(X_test69)
-accuu = np.sum(y_test69 == predictions)/len(y_test69)
-print('{:20.15f}'.format(accuu))
+for y in range(10020):
+    for x in range(10):
+        print("| ", output[y][x], " |")
