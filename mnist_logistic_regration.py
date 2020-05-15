@@ -67,21 +67,6 @@ def confiusionMat(predictions, actualLabels):
             T_P += 1
     return (T_P, F_P, F_N, T_N)
 
-# bc = datasets.load_breast_cancer()
-# X, y = bc.data, bc.target
-
-# X_train, X_test, y_train, y_test = train_test_split(
-#     X, y, test_size=0.2, random_state=1234)
-
-
-# reg = LR(lr=0.0001, n_iters=1000)
-# reg.fit(X_train, y_train)
-# pree = reg.predict(X_test)
-
-# acc = np.sum(y_test == pree)/len(y_test)
-# print('{:20.15f}'.format(acc))
-# print('{:20.15f}'.format(accuracy(pree, y_test)))
-
 
 X_test, y_test = loadlocal_mnist(
     images_path='./dataset/t10k-images-idx3-ubyte',
@@ -138,10 +123,3 @@ print("Recall:", (T_P)/(T_P+F_N))
 print("Mean farmula accuracy: ", accuracy(pree, y_test69))
 print(pree.shape)
 print(pree)
-# print("++++++++++++++++++++++++++++++++++++++++++++++++")
-# logmodel = LogisticRegression()
-# logmodel.fit(X_train69, y_train69)
-
-# predictions = logmodel.predict(X_test69)
-# accuu = np.sum(y_test69 == predictions)/len(y_test69)
-# print('{:20.15f}'.format(accuu))
